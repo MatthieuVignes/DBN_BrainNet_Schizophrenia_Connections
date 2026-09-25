@@ -1,0 +1,4 @@
+participant_id,slot,name,issue,raw_dose,adjusted_oral_equiv_mg
+sub-50023,1,Risperidone/ Risperdal Consta,LAI dose converted to oral-equivalent,50.0,4.0
+sub-50047,2,Zyprexa/ Olanzapine,exceeds 1.5x recognised max oral daily dose (30mg) -- winsorised,60.0,30.0
+sub-50052,1,Zyprexa/ Olanzapine,exceeds 1.5x recognised max oral daily dose (30mg) -- winsorised,200.0,30.0
