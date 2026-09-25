@@ -1,0 +1,5 @@
+"group","correlation_edges","dbn_static_edges","overlap","jaccard"
+"H.E",300,242,239,0.789
+"H.R",325,224,224,0.689
+"S.E",325,227,227,0.698
+"S.R",300,227,225,0.745

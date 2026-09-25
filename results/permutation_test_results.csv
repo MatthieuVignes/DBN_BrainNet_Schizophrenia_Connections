@@ -1,0 +1,3 @@
+"contrast","group1","group2","n_edges_g1","n_edges_g2","observed_edge_diff","null_edge_diff_mean","p_value_edge_diff","observed_jaccard","null_jaccard_mean","p_value_jaccard"
+"encoding","H.E","S.E",512,534,22,20.24,0.46,0.334,0.395,0.12
+"retrieval","H.R","S.R",537,528,9,18.74,0.78,0.394,0.414,0.38
