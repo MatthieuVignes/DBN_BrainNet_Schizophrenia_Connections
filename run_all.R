@@ -44,3 +44,7 @@ source("scripts_full_resolution/21_tier1_recovery.R")
 # Tier 2: adds to Tier 1 the two-condition design with/without an embedded difference, replicated enough times for null-calibration and power estimates
 source("scripts_full_resolution/22_tier2_runner.R")
 source("scripts_full_resolution/23_tier2_aggregate.R")
+
+# 
+source("scripts_full_resolution/24_extract_per_bootstrap_counts.R")
+source("scripts_full_resolution/25_corrected_density_test.R")
