@@ -37,8 +37,6 @@ retrieval (R) task phases.
 - Python (only needed to rerun `18_clinical_prep.py` from scratch — not
   required if using the provided `clinical_data/` files)
 
-## Notes
+## icence
 
-- Large data/result files are tracked directly in git (no LFS currently set
-  up) — expect a sizeable clone (~hundreds of MB).
-- License: MIT (see `LICENSE`).
+- MIT (see `LICENSE`).
