@@ -1,43 +1,23 @@
-# Extracts, from the bootstrap fits ALREADY ON DISK (from
-# 14_bootstrap_parallel_runner.R -- no new model fitting needed), the total
-# edge count produced by each individual bootstrap replicate.
-#
-# This is the input needed for a properly-calibrated group-density
-# comparison (25_corrected_density_test.R), which treats each of the 100
-# bootstrap replicates as ONE independent observation (real n=100 per
-# group), rather than pooling every (bootstrap x possible-arc) pair into a
-# single giant contingency table as the original Beta-Binomial approach
-# (07_bayesian_density_full.R) did -- which Tier 2 validation showed
-# produces a ~30% false-positive rate under the null instead of the nominal
-# ~5%, almost certainly because it treats correlated bootstrap-arc pairs as
-# if they were independent, understating uncertainty.
+# Extract the edge count of every bootstrap fit
+# Usage: Rscript 24_extract_per_bootstrap_counts.R [BOOT_DIR] [B] [OUT_CSV]
+#  main analysis : Rscript 24_extract_per_bootstrap_counts.R
+#  non-smokers   : Rscript 24_extract_per_bootstrap_counts.R boot_results_nonsmoker 50 results/per_bootstrap_edge_counts_nonsmoker.csv
+args <- commandArgs(trailingOnly = TRUE)
+BOOT_DIR <- if (length(args) >= 1) args[1] else "boot_results_full"
+B        <- if (length(args) >= 2) as.integer(args[2]) else 100L
+OUT_CSV  <- if (length(args) >= 3) args[3] else "results/per_bootstrap_edge_counts.csv"
+GROUPS <- c("H.E","H.R","S.E","S.R"); SCORE <- "bic-g"; MAXP <- 8
 
-GROUPS <- c("H.E","H.R","S.E","S.R")
-B <- 100
-SCORE <- "bic-g"
-MAXP <- 8  # must match what 14_bootstrap_parallel_runner.R was run with
-
-counts <- list()
-for (grp in GROUPS) {
-  files <- sprintf("boot_results_full/%s_b%03d_%s_maxp%d.rds", grp, 1:B, SCORE, MAXP)
-  files <- files[file.exists(files)]
-  cat(sprintf("%s: %d/%d bootstrap files found\n", grp, length(files), B))
-  n_arcs <- sapply(files, function(f) nrow(readRDS(f)))
-  counts[[grp]] <- n_arcs
-}
-
-max_len <- max(sapply(counts, length))
-counts_df <- data.frame(bootstrap = seq_len(max_len))
-for (grp in GROUPS) {
-  v <- counts[[grp]]
-  length(v) <- max_len  # pad with NA if any group has fewer completed files
-  counts_df[[grp]] <- v
-}
-
-cat("\n--- Per-bootstrap edge count summary ---\n")
-for (grp in GROUPS) cat(sprintf("%s: mean=%.1f sd=%.1f min=%d max=%d\n",
-                                  grp, mean(counts[[grp]]), sd(counts[[grp]]),
-                                  min(counts[[grp]]), max(counts[[grp]])))
-
-write.csv(counts_df, "results/per_bootstrap_edge_counts.csv", row.names = FALSE)
-cat("\nSaved per_bootstrap_edge_counts.csv -- send this file back for the corrected test.\n")
+counts <- lapply(GROUPS, function(g) {
+  f <- sprintf("%s/%s_b%03d_%s_maxp%d.rds", BOOT_DIR, g, seq_len(B), SCORE, MAXP)
+  f <- f[file.exists(f)]
+  cat(sprintf("%s: %d/%d files\n", g, length(f), B))
+  vapply(f, function(x) nrow(readRDS(x)), numeric(1))
+})
+names(counts) <- GROUPS
+n <- max(lengths(counts))
+df <- data.frame(bootstrap = seq_len(n))
+for (g in GROUPS) { v <- unname(counts[[g]]); length(v) <- n; df[[g]] <- v }
+for (g in GROUPS) cat(sprintf("%s: mean=%.1f sd=%.1f\n", g, mean(df[[g]], na.rm=TRUE), sd(df[[g]], na.rm=TRUE)))
+write.csv(df, OUT_CSV, row.names = FALSE)
+cat("Saved", OUT_CSV, "\n")

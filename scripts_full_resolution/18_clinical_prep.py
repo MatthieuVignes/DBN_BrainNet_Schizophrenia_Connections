@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 import re
 
-MED_PATH = "/mnt/user-data/uploads/medication.tsv"
-BPRS_PATH = "/mnt/user-data/uploads/bprs.tsv"
-FMRI_PATH = "/mnt/user-data/uploads/240621_Final_Data_for_Sparsity_Manuscript.csv"
-OUT = "/home/claude/analysis"
+MED_PATH = "/data/medication.tsv"
+BPRS_PATH = "/data/uploads/bprs.tsv"
+FMRI_PATH = "/data/240621_Final_Data_for_Sparsity_Manuscript.csv"
+OUT = "/analysis"
 
 # ---------------------------------------------------------------------------
 # Antipsychotic classification + chlorpromazine-equivalent (CPZ-eq) conversion
@@ -13,15 +13,15 @@ OUT = "/home/claude/analysis"
 # Factors below are approximate daily-dose equivalents to 100mg chlorpromazine,
 # drawn from the widely-cited international consensus dosing study (Gardner
 # et al., Am J Psychiatry 2010) and standard updated equivalence tables
-# (Leucht et al., 2020, Schizophrenia Bulletin, for newer agents). These are
-# necessarily approximations -- equivalence tables vary somewhat across
-# sources -- and are stated explicitly here so the conversion is auditable
+# (Leucht et al. for newer agents -> fully verify exact references). These 
+# are approximations -equivalence tables vary somewhat across
+# sources- and are stated explicitly here so the conversion is auditable
 # and can be swapped for a different reference table if reviewers prefer one.
 #
 # Non-antipsychotic psychotropics (antidepressants, benzodiazepines, mood
 # stabilizers/anticonvulsants, anticholinergics prescribed for extrapyramidal
 # side effects, sleep aids, thyroid medication, ECT) are explicitly excluded
-# from the antipsychotic dose sum -- they answer a different question
+# from the antipsychotic dose sum. They answer a different question
 # (polypharmacy burden) than the "antipsychotic exposure" confound the
 # reviewer raised, so folding them in would answer something other than what
 # was asked.
@@ -58,7 +58,7 @@ NON_ANTIPSYCHOTIC_KEYWORDS = [
 
 # Maximum clinically-recognised oral daily doses (mg/day), used only to flag
 # values that look like data-entry errors or a non-oral dosing interval
-# recorded as if it were a daily oral dose -- NOT to silently "correct" the
+# recorded as if it were a daily oral dose, NOT to silently "correct" the
 # data. Values exceeding ~1.5x this ceiling are flagged and winsorised to the
 # ceiling, with the flag reported so reviewers can see exactly what was done.
 MAX_ORAL_DAILY_MG = {
@@ -72,7 +72,7 @@ MAX_ORAL_DAILY_MG = {
 }
 
 # Long-acting injectable (LAI) formulations are dosed per 2-4 weeks, not
-# daily -- applying an oral CPZ factor directly to the injectable dose
+# daily, applying an oral CPZ factor directly to the injectable dose
 # massively overstates exposure. Risperdal Consta is the only LAI appearing
 # in this dataset; converted here via the standard biweekly-dose -> oral
 # daily-equivalent approximation (dose_mg / 12.5 -> oral mg/day), then the
