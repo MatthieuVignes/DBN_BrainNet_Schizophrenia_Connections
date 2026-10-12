@@ -1,42 +1,60 @@
-# DBN_BrainNet_Schizophrenia_Connections
+# Dynamic Bayesian network analysis of PDS vs HC: supplementary code
 
-Dynamic Bayesian network (DBN) analysis of fMRI connectivity in schizophrenia,
-comparing patients (S) and healthy controls (H) across encoding (E) and
-retrieval (R) task phases.
+Code behind the revision of "Brain networks for schizophrenia show differences in 
+functional connections compared to healthy case controls for memory encoding and \
+retrieval tasks" (*Journal of the Royal Society of New Zealand*). 
+It rebuilds the two-slice DBN analysis from the participant-level data and adds the 
+relevant analyses the reviewers requested.
 
-## Repository structure
+## Headline result
 
-| Folder | Contents |
+Under formal inference there is **no statistically significant group difference in network density**, 
+in either encoding or retrieval (bootstrap-difference intervals and permutation tests). 
+Retrieval PDS > HC (+281 edges, 95% interval [-153, 659], p = 0.19) matches the direction 
+of the original claim but is not distinguishable from resampling variability. 
+Individual edges are unstable (split-half Jaccard ≈ 0.11) and the pipeline over-calls 
+edges in simulation (precision ≈ 0.38), so results should be read at network level and as 
+exploratory.
+
+An earlier Beta-Binomial density test reported "credible" differences. A simulation 
+showed it is miscalibrated (30% false positives under the null), so it has been replaced. 
+See `README_FULL_RESOLUTION.md`.
+
+## Where to look
+
+| Question | Read |
 |---|---|
-| `data/` | Raw/source data: `240621_Final_Data_for_Sparsity_Manuscript.csv` (main dataset), `Demographics.csv` |
-| `clinical_data/` | Clinical variables, BPRS subscales, CPZ dose data |
-| `analysis/` | Prepped `.rds` files ready for modeling (`prepped_data.rds`, `prepped_data_nonsmoker.rds`) |
-| `scripts_full_resolution/` | Full analysis pipeline (R scripts, numbered in run order) — see its own README files for details |
-| `boot_results_full/`, `boot_results_nonsmoker/`, `tier1_boot/` | Saved bootstrap fit outputs |
-| `results/` | Final outputs: summary stats, posteriors, stability/permutation results |
-| `run_all.R` | Master script that sources the full pipeline end to end |
+| How to run the main 116-region pipeline, run order, timings, results | `README_FULL_RESOLUTION.md` (scripts `00`-`14`, `24`, `25`, `27`) |
+| Smoking (non-smoker) sensitivity | `README_SMOKING_SENSITIVITY.md` (scripts `15`-`17`, then `24`, `25`) |
+| BPRS and antipsychotic dose correlations | `README_CLINICAL_CORRELATION.md` (scripts `18`, `19`) |
+| Simulation with known ground truth | `README_SIMULATION_VALIDATION.md` (scripts `20`-`23`, `26`) |
 
-## Getting started
+## Mapping to reviewer comments
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/MatthieuVignes/DBN_BrainNet_Schizophrenia_Connections.git
-   ```
-2. Open `run_all.R` in RStudio and run it — it sources each pipeline step in
-   `scripts_full_resolution/` in order (data prep → DBN fitting → bootstrapping →
-   statistical tests → clinical correlations → simulation validation).
-3. See `scripts_full_resolution/README.md` for a full walkthrough of each
-   analysis step and how it maps to results in `results/`. Additional
-   topic-specific notes are in `README_CLINICAL_CORRELATION.md`,
-   `README_FULL_RESOLUTION.md`, `README_SIMULATION_VALIDATION.md`, and
-   `README_SMOKING_SENSITIVITY.md` in the same folder.
+| Analysis | Scripts | Comment |
+|---|---|---|
+| Data prep, two-slice DBN, `maxp` cap | `00`, `01`, `13`, `14` | R1-1 |
+| Bootstrap and L1-optimal threshold (0.50) | `14`, `06` | R1-2 |
+| Group inference (bootstrap-difference interval; permutation) | `24`, `25`; `11`, `12` | R2-1 |
+| Directed vs intra-slice edges | `08` | R2-2 |
+| Split-half stability; simulation | `10`; `20`–`23` | R2-3 |
+| Smoking sensitivity; CPZ dose | `15`–`17`; `18`, `19` | R2-4 |
+| Pearson-network comparison | `09` | R2-6 |
+| BPRS correlations | `18`, `19` | R1-4 |
 
-## Requirements
+## Folders
 
-- R (with `bnlearn`, `dbnR`, `rstudioapi`, and standard tidyverse packages)
-- Python (only needed to rerun `18_clinical_prep.py` from scratch — not
-  required if using the provided `clinical_data/` files)
+- `scripts_full_resolution/`: primary pipeline (use this).
+- `clinical_data/`: derived BPRS and CPZ-equivalent files.
+- `results/`: main outputs.
 
-## icence
+## Assumptions and deviations
 
-- MIT (see `LICENSE`).
+- Signed square-root transform `sign(x)·√|x|` of BOLD values.
+- Parents-per-node cap (`maxp = 8`) in hill-climbing for tractability at 118 nodes.
+- `Scan_no` is included as a model node.
+- Single-threaded BLAS and data.table inside the parallel runners (required to avoid fork deadlocks).
+
+## Limitations not yet addressed
+
+Medicated vs unmedicated group-level comparison; education as a covariate; second-order DBN; re-scoring the simulation fits with the replacement test.

@@ -47,4 +47,4 @@ source("scripts_full_resolution/23_tier2_aggregate.R")
 
 # 
 source("scripts_full_resolution/24_extract_per_bootstrap_counts.R")
-source("scripts_full_resolution/25_corrected_density_test.R")
+source("scripts_full_resolution/25_bootstrap_difference_test.R")
